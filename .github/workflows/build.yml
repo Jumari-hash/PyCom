@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 name: Build PyCom
 
 on:
@@ -31,16 +21,16 @@ jobs:
           java-version: 17
 
       - name: Generate Gradle Wrapper (force 8.2)
-  run: |
-    rm -rf gradle gradlew gradlew.bat
-    mkdir -p gradle/wrapper
-    echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-    echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-    echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip" >> gradle/wrapper/gradle-wrapper.properties
-    echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-    echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-    curl -sLo gradlew https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew
-    chmod +x gradlew
+        run: |
+          rm -rf gradle gradlew gradlew.bat
+          mkdir -p gradle/wrapper
+          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          curl -sLo gradlew https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew
+          chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew build
