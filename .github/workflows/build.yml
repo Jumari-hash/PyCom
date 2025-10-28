@@ -1,4 +1,4 @@
-name: Build PyCom (Gradle 7.5.1 + Chaquopy)
+name: Build PyCom
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -20,24 +20,12 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Download Gradle 7.5.1
+      - name: Generate Gradle Wrapper (if missing)
         run: |
-          echo "⬇️ Downloading Gradle 7.5.1..."
-          curl -sLo gradle-7.5.1-bin.zip https://services.gradle.org/distributions/gradle-7.5.1-bin.zip
-          unzip -q gradle-7.5.1-bin.zip
-          echo "GRADLE_HOME=$(pwd)/gradle-7.5.1" >> $GITHUB_ENV
-          echo "$(pwd)/gradle-7.5.1/bin" >> $GITHUB_PATH
+          if [ ! -f ./gradlew ]; then
+            gradle wrapper --gradle-version 8.2
+            chmod +x ./gradlew
+          fi
 
-      - name: Generate Gradle wrapper (v7.5.1)
-        run: |
-          gradle wrapper --gradle-version 7.5.1
-          chmod +x ./gradlew
-
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: PyCom-APK
-          path: app/build/outputs/apk/debug/*.apk
+      - name: Build with Gradle
+        run: ./gradlew build
