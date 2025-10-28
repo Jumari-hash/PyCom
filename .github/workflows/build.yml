@@ -1,4 +1,4 @@
-name: Build PyCom (Gradle + Chaquopy)
+name: Build PyCom (Gradle 7.5.1 + Chaquopy)
 
 on:
   push:
@@ -20,16 +20,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Gradle (if wrapper missing)
+      - name: Download Gradle 7.5.1
         run: |
-          if [ ! -f ./gradlew ]; then
-            echo "⚙️ Gradle wrapper not found — generating..."
-            gradle wrapper --gradle-version 7.5.1
-            chmod +x ./gradlew
-          fi
+          echo "⬇️ Downloading Gradle 7.5.1..."
+          curl -sLo gradle-7.5.1-bin.zip https://services.gradle.org/distributions/gradle-7.5.1-bin.zip
+          unzip -q gradle-7.5.1-bin.zip
+          echo "GRADLE_HOME=$(pwd)/gradle-7.5.1" >> $GITHUB_ENV
+          echo "$(pwd)/gradle-7.5.1/bin" >> $GITHUB_PATH
 
-      - name: Grant execution permission for Gradle wrapper
-        run: chmod +x ./gradlew || true
+      - name: Generate Gradle wrapper (v7.5.1)
+        run: |
+          gradle wrapper --gradle-version 7.5.1
+          chmod +x ./gradlew
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
