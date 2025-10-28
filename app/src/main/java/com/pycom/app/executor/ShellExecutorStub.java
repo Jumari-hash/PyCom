@@ -1,70 +1,96 @@
-package com.pycom.app.executor;
+package com.pycom.app.core;
 
-/**
- * PLACEHOLDER STUB for shell command execution
- * 
- * This class provides fake shell command responses for terminal UI testing.
- * In a production version, you could integrate with:
- * - Process execution for actual shell commands
- * - Terminal emulator library (e.g., Termux terminal emulator)
- * - Python subprocess module via Chaquopy
- * 
- * SECURITY WARNING:
- * Executing arbitrary shell commands can be dangerous. Implement proper
- * sandboxing and permission checks before enabling real command execution.
- */
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class ShellExecutorStub {
 
+    // Tracks the current working directory for cd command
+    private static File currentDir = new File("/");
+
     /**
-     * Execute a shell command and return output
-     * 
-     * @param command Command to execute
-     * @return Command output (fake/placeholder)
+     * Executes a shell command in Android using /system/bin/sh
+     * Supports ls, cd, cp, mv, mkdir, cat, and python program.py via Chaquopy bridge.
      */
-    public String executeCommand(String command) {
-        // TODO: Replace with real terminal/shell integration
-        
-        String trimmedCommand = command.trim();
-        
-        // Provide fake responses for common commands
-        if (trimmedCommand.equals("help")) {
-            return "Available commands (PLACEHOLDER):\n" +
-                   "  help     - Show this help message\n" +
-                   "  ls       - List files\n" +
-                   "  pwd      - Print working directory\n" +
-                   "  clear    - Clear terminal\n" +
-                   "  python   - Run Python interpreter\n" +
-                   "  pip      - Package installer\n\n" +
-                   "NOTE: Real command execution not implemented.";
-                   
-        } else if (trimmedCommand.equals("ls")) {
-            return "hello_world.py\n" +
-                   "calculator.py\n" +
-                   "sample_script.py";
-                   
-        } else if (trimmedCommand.equals("pwd")) {
-            return "/storage/emulated/0/PyCom/projects";
-            
-        } else if (trimmedCommand.startsWith("python")) {
-            return "[PLACEHOLDER] Python interpreter not available\n" +
-                   "Integrate Chaquopy for Python execution.";
-                   
-        } else if (trimmedCommand.startsWith("pip")) {
-            return "[PLACEHOLDER] pip not available\n" +
-                   "Integrate Chaquopy pip functionality.";
-                   
-        } else if (trimmedCommand.equals("clear")) {
-            return "[CLEAR]";
-            
-        } else if (trimmedCommand.startsWith("echo")) {
-            String text = trimmedCommand.substring(4).trim();
-            return text;
-            
-        } else {
-            return "[PLACEHOLDER] Command not recognized: " + trimmedCommand + "\n" +
-                   "Type 'help' for available commands.\n\n" +
-                   "NOTE: This is a stub implementation. Real shell execution\n" +
-                   "would require Process execution or terminal emulator integration.";
+    public static String executeCommand(String command) {
+        command = command.trim();
+        if (command.isEmpty()) return "";
+
+        String[] parts = command.split("\\s+");
+        String cmd = parts[0];
+
+        // Handle built-in cd command manually (since it doesn't persist between processes)
+        if (cmd.equals("cd")) {
+            if (parts.length > 1) {
+                File newDir = new File(currentDir, parts[1]);
+                if (newDir.exists() && newDir.isDirectory()) {
+                    currentDir = newDir;
+                    return "Changed directory to: " + currentDir.getAbsolutePath();
+                } else {
+                    return "cd: no such directory: " + parts[1];
+                }
+            } else {
+                currentDir = new File(System.getProperty("user.home", "/"));
+                return "Changed directory to home: " + currentDir.getAbsolutePath();
+            }
         }
+
+        // Handle Python file execution via PythonExecutorStub
+        if (cmd.equals("python") && parts.length > 1) {
+            String scriptName = parts[1];
+            File scriptFile = new File(currentDir, scriptName);
+            if (!scriptFile.exists()) {
+                return "python: file not found: " + scriptFile.getAbsolutePath();
+            }
+
+            try {
+                // Read file contents
+                StringBuilder scriptContent = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new java.io.FileReader(scriptFile))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        scriptContent.append(line).append("\n");
+                    }
+                }
+                // Execute Python code using Chaquopy
+                return PythonExecutorStub.executeCode(scriptContent.toString());
+            } catch (Exception e) {
+                return "Python execution error: " + e.getMessage();
+            }
+        }
+
+        // Handle regular shell commands (ls, cp, mv, mkdir, cat, etc.)
+        try {
+            Process process = new ProcessBuilder("/system/bin/sh", "-c", command)
+                    .directory(currentDir)
+                    .redirectErrorStream(true)
+                    .start();
+
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream())
+            );
+
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            reader.close();
+            process.waitFor();
+            return output.toString().trim();
+
+        } catch (IOException e) {
+            return "IO error: " + e.getMessage();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "Interrupted: " + e.getMessage();
+        }
+    }
+
+    public static String getCurrentDir() {
+        return currentDir.getAbsolutePath();
     }
 }

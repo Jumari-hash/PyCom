@@ -3,13 +3,11 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://chaquo.com/maven" }  // ✅ Added
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
-        
-        // NOTE: Chaquopy plugin can be added here when ready to integrate Python runtime
-        // Uncomment the line below and sync project:
-        // classpath 'com.chaquo.python:gradle:15.0.1'
+        classpath 'com.chaquo.python:gradle:15.0.1'  // ✅ Uncommented
     }
 }
 

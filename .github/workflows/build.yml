@@ -1,0 +1,66 @@
+name: Build PyCom (Android + Chaquopy)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+
+jobs:
+  build:
+    name: Build APK with Chaquopy
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Checkout your source code
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2️⃣ Set up JDK 17 for Gradle and Chaquopy
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    # 3️⃣ Set up Android SDK & NDK
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: latest
+        api-level: 35
+        build-tools: 35.0.0
+        ndk-version: 26.1.10909125
+
+    # 4️⃣ Cache Gradle and Chaquopy build files for speed
+    - name: Cache Gradle
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Cache Chaquopy Python build
+      uses: actions/cache@v4
+      with:
+        path: ~/.chaquopy
+        key: ${{ runner.os }}-chaquopy-${{ hashFiles('**/build.gradle') }}
+
+    # 5️⃣ Make Gradle executable
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    # 6️⃣ Build the APK (Chaquopy runs automatically)
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --stacktrace
+
+    # 7️⃣ Upload built APK as artifact
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: PyCom-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
