@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Internet permission for potential cloud features (placeholder) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Wake lock for long-running Python scripts (placeholder) -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- NOTE: App-specific external storage (getExternalFilesDir) doesn't require
+         READ/WRITE_EXTERNAL_STORAGE permissions on any API level. Files are stored in:
+         /storage/emulated/0/Android/data/com.pycom.app/files/PyCom/
+         If you need access to shared storage in future, add MANAGE_EXTERNAL_STORAGE
+         for API 30+ or use MediaStore/Storage Access Framework (SAF) -->
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PyCom"
+        tools:targetApi="31">
+        
+        <!-- Main Activity with bottom navigation -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PyCom"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

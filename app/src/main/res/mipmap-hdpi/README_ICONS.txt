@@ -1,0 +1,1 @@
+NOTE: Launcher icon PNG files would normally be generated here for each density (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi). For this skeleton project, the adaptive icon XML above will be used on API 26+. For a production app, generate proper PNG launcher icons using Android Studio's Image Asset tool or an online generator.

@@ -1,0 +1,84 @@
+plugins {
+    id 'com.android.application'
+    
+    // NOTE: Enable Chaquopy plugin when ready to integrate Python runtime
+    // Uncomment the line below after adding Chaquopy to root build.gradle:
+    // id 'com.chaquo.python'
+}
+
+android {
+    namespace 'com.pycom.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.pycom.app"
+        minSdk 29
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // NOTE: Chaquopy Python configuration would go here
+        // Example configuration (uncomment when Chaquopy is enabled):
+        /*
+        python {
+            buildPython "/usr/bin/python3"
+            pip {
+                install "numpy"
+                install "matplotlib"
+            }
+        }
+        */
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    // AndroidX Core
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    
+    // Material Design Components
+    implementation 'com.google.android.material:material:1.11.0'
+    
+    // AndroidX Navigation
+    implementation 'androidx.navigation:navigation-fragment:2.7.7'
+    implementation 'androidx.navigation:navigation-ui:2.7.7'
+    
+    // AndroidX Lifecycle Components
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.7.0'
+    
+    // RecyclerView for file listing
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    
+    // SwipeRefreshLayout
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    
+    // NOTE: Chaquopy dependency for embedded Python runtime
+    // Uncomment the line below when ready to integrate Python execution:
+    // implementation 'com.chaquo.python:gradle:15.0.1'
+}
